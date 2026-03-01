@@ -14,6 +14,9 @@ import cookieParser from "cookie-parser";
 import passport from "passport";
 import expressSession from "express-session";
 import "./app/config/passport.js";
+import { BlogRoutes } from "./app/modules/blog/blog.route.js";
+import { KnowledgeRoutes } from "./app/modules/knowledge/knowledge.route.js";
+import { CourseRoutes } from "./app/modules/course/course.route.js";
 
 const app = express();
 
@@ -32,6 +35,9 @@ app.use(cors());
 
 app.use("/api/v1/user", UserRoutes);
 app.use("/api/v1/auth", AuthRoutes);
+app.use("/api/v1/course", CourseRoutes);
+app.use("/api/v1/blogs", BlogRoutes);
+app.use("/api/v1/knowledge", KnowledgeRoutes);
 
 app.get("/", (req: Request, res: Response) => {
   res.status(StatusCodes.ACCEPTED).json({
