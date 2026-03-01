@@ -4,9 +4,53 @@ import {
   type Profile,
   type VerifyCallback,
 } from "passport-google-oauth20";
+import { Strategy as LocalStrategy } from "passport-local";
 import { envVars } from "./env.js";
 import { User } from "../modules/user/user.model.js";
 import { Role, type IUser } from "../modules/user/user.interface.js";
+import bcrypt from "bcryptjs";
+
+passport.use(
+  new LocalStrategy(
+    {
+      usernameField: "email",
+      passwordField: "password",
+    },
+    async (email, password, done) => {
+      try {
+        const isUserExist = await User.findOne({
+          email: email,
+        }).select("+password");
+
+        if (!isUserExist) {
+          return done(null, false, { message: "User Does not exist" });
+        }
+
+        const isGoogleAuthenticated = isUserExist.auths?.some(
+          (providerObjects) => providerObjects.provider == "google",
+        );
+        if (isGoogleAuthenticated && !isUserExist.password) {
+          return done(
+            "You have authenticated through Google. So if you want to login with credentials, then at first login with google and set a password for your Gmail and then you can login with email and password.",
+          );
+        }
+
+        const isPasswordMatched = await bcrypt.compare(
+          password,
+          isUserExist.password as string,
+        );
+
+        if (!isPasswordMatched) {
+          return done(null, false, { message: "Password Does not match" });
+        }
+
+        return done(null, isUserExist);
+      } catch (error) {
+        return done(error);
+      }
+    },
+  ),
+);
 
 passport.use(
   new GoogleStrategy(

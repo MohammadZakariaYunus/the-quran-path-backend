@@ -8,19 +8,30 @@ import { setAuthCookie } from "../../utils/setCookie.js";
 import type { JwtPayload } from "jsonwebtoken";
 import { createUserTokens } from "../../utils/user.tokens.js";
 import { envVars } from "../../config/env.js";
-import type { IUser } from "../user/user.interface.js";
+import passport from "passport";
+import { access } from "fs";
 
 const credentialsLogin = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const loginInfo = await AuthServices.credentialsLogin(req.body);
-    setAuthCookie(res, loginInfo);
+    passport.authenticate("local", async (err: any, user: any, info: any) => {
+      if (err) return next(new AppError(401, err));
+      if (!user) return next(new AppError(401, info.message));
 
-    sendResponse(res, {
-      success: true,
-      statusCode: StatusCodes.OK,
-      message: "User Logged In Successfully",
-      data: loginInfo,
-    });
+      const userToken = await createUserTokens(user);
+      const { password: pass, ...rest } = user.toObject();
+
+      setAuthCookie(res, userToken);
+      sendResponse(res, {
+        success: true,
+        statusCode: StatusCodes.OK,
+        message: "User Logged In Successfully",
+        data: {
+          accessToken: userToken.accessToken,
+          refreshToken: userToken.refreshToken,
+          user: rest,
+        },
+      });
+    })(req, res, next);
   },
 );
 
