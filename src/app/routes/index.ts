@@ -2,8 +2,8 @@ import { Router } from "express";
 import { UserRoutes } from "../modules/user/user.route.js";
 import { AuthRoutes } from "../modules/auth/auth.route.js";
 import { CourseRoutes } from "../modules/course/course.route.js";
-import { KnowledgeRoutes } from "../modules/knowledge/knowledge.route.js";
 import { BlogRoutes } from "../modules/blog/blog.route.js";
+import { GuidanceRoutes } from "../modules/Guidance/guidance.route.js";
 
 const router = Router();
 
@@ -25,8 +25,8 @@ const moduleRoutes = [
     route: BlogRoutes,
   },
   {
-    path: "/knowledge",
-    route: KnowledgeRoutes,
+    path: "/guidance",
+    route: GuidanceRoutes,
   },
 ];
 

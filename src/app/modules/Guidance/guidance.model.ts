@@ -1,9 +1,9 @@
 import { Schema, model } from "mongoose";
 import type {
+  ICharter,
   IInstructionPoint,
-  IKnowledge,
-  IRelatedResource,
-} from "./knowledge.interface.js";
+  IGuidance,
+} from "./guidance.interface.js";
 
 // Instruction Point Schema (Sub-schema for Steps)
 const instructionPointSchema = new Schema<IInstructionPoint>({
@@ -12,12 +12,12 @@ const instructionPointSchema = new Schema<IInstructionPoint>({
 });
 
 // Related Resource Schema (Sub-schema)
-const relatedResourceSchema = new Schema<IRelatedResource>({
+const charterSchema = new Schema<ICharter>({
   label: { type: String, required: true },
   url: { type: String, required: true },
 });
 
-const knowledgeSchema = new Schema<IKnowledge>(
+const guidanceSchema = new Schema<IGuidance>(
   {
     topic: {
       type: String,
@@ -34,16 +34,14 @@ const knowledgeSchema = new Schema<IKnowledge>(
     category: {
       type: String,
       required: [true, "Category is required"],
-      index: true, // দ্রুত সার্চ করার জন্য ইনডেক্স করা হলো
+      index: true,
     },
-    // প্যারাগ্রাফের জন্য
     description: {
       type: String,
     },
-    // পয়েন্ট ভিত্তিক মাসয়ালার জন্য
     steps: {
       type: [instructionPointSchema],
-      default: undefined, // যদি ডাটা না থাকে তবে যেন খালি অ্যারে না দেখায় (ঐচ্ছিক)
+      default: undefined,
     },
     author: {
       type: Schema.Types.ObjectId,
@@ -54,8 +52,8 @@ const knowledgeSchema = new Schema<IKnowledge>(
       type: [String],
       default: [],
     },
-    relatedResources: {
-      type: [relatedResourceSchema],
+    charter: {
+      type: [charterSchema],
       default: [],
     },
     helpfulCount: {
@@ -82,4 +80,4 @@ const knowledgeSchema = new Schema<IKnowledge>(
   },
 );
 
-export const Knowledge = model<IKnowledge>("Knowledge", knowledgeSchema);
+export const Guidance = model<IGuidance>("Guidance", guidanceSchema);

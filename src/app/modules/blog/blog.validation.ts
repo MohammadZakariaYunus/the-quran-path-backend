@@ -12,7 +12,6 @@ export const createBlogValidationSchema = z.object({
     author: z.string("Author ID is required"),
     bannerImage: z.url({ message: "Invalid banner URL" }).optional(),
     category: z.string("Category is required"),
-    tags: z.array(z.string()).nonempty("At least one tag is required"),
     metaDescription: z
       .string()
       .max(160, "Meta description should be under 160 characters")
@@ -36,7 +35,6 @@ export const updateBlogValidationSchema = z.object({
     author: z.string().optional(),
     bannerImage: z.url({ message: "Invalid banner URL" }).optional(),
     category: z.string().optional(),
-    tags: z.array(z.string()).optional(),
     metaDescription: z.string().max(160).optional(),
     readingTime: z.number().min(0).optional(),
     views: z.number().min(0).optional(),

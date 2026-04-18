@@ -4,7 +4,7 @@ import type { IBlog } from "./blog.interface.js";
 const blogSchema = new Schema(
   {
     title: { type: String, required: true, unique: true },
-    slug: { type: String, required: true, lowercase: true },
+    slug: { type: String, lowercase: true },
     content: { type: String, required: true },
     author: { type: Schema.Types.ObjectId, ref: "User", required: true },
     bannerImage: { type: String },
