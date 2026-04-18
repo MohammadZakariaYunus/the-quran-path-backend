@@ -2,6 +2,9 @@ import { StatusCodes } from "http-status-codes";
 import type { IBlog } from "./blog.interface.js";
 import { Blog } from "./blog.model.js";
 import AppError from "../../errorHelpers/AppError.js";
+import { blogSearchableFields } from "./blog.constant.js";
+import { excludeField } from "../../constants.js";
+import { QueryBuilder } from "../../utils/QueryBuilder.js";
 
 const createBlog = async (payload: IBlog) => {
   const slug = payload.title.toLowerCase().split(" ").join("-");
@@ -20,16 +23,23 @@ const createBlog = async (payload: IBlog) => {
   return result;
 };
 
-const getAllBlogs = async () => {
-  const totalBlogs = await Blog.countDocuments({ status: "published" });
-  const blogs = await Blog.find({ status: "published" })
-    .populate("author")
-    .sort("-createdAt");
+const getAllBlogs = async (query: Record<string, string>) => {
+  const queryBuilder = new QueryBuilder(Blog.find().populate("author"), query);
+  const blogs = await queryBuilder
+    .search(blogSearchableFields)
+    .filter()
+    .sort()
+    .fields()
+    .paginate();
+
+  const [data, meta] = await Promise.all([
+    blogs.build(),
+    queryBuilder.getMeta(),
+  ]);
+
   return {
-    data: blogs,
-    meta: {
-      total: totalBlogs,
-    },
+    meta,
+    data,
   };
 };
 

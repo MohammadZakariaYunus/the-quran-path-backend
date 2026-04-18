@@ -2,6 +2,8 @@ import { Course } from "./course.model.js";
 import AppError from "../../errorHelpers/AppError.js";
 import { StatusCodes } from "http-status-codes";
 import type { ICourse } from "./course.interface.js";
+import { QueryBuilder } from "../../utils/QueryBuilder.js";
+import { courseSearchableFields } from "./course.constant.js";
 
 const createCourse = async (payload: ICourse) => {
   const slug = payload.title.toLowerCase().split(" ").join("-");
@@ -21,9 +23,28 @@ const createCourse = async (payload: ICourse) => {
   return result;
 };
 
-const getAllCourses = async () => {
-  const result = await Course.find().populate("instructor");
-  return result;
+const getAllCourses = async (query: Record<string, string>) => {
+  const courseQueryBuilder = new QueryBuilder(
+    Course.find().populate("instructor"),
+    query,
+  );
+
+  const courses = courseQueryBuilder
+    .search(courseSearchableFields)
+    .filter()
+    .sort()
+    .fields()
+    .paginate();
+
+  const [data, meta] = await Promise.all([
+    courses.build(),
+    courseQueryBuilder.getMeta(),
+  ]);
+
+  return {
+    meta,
+    data,
+  };
 };
 
 const getSingleCourse = async (slug: string) => {
